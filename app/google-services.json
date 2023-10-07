@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "318428341484",
+    "project_id": "vculp-89990",
+    "storage_bucket": "vculp-89990.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:318428341484:android:c6cb8cbd167d5f461b71c9",
+        "android_client_info": {
+          "package_name": "com.example.vculp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "318428341484-jia9tbn4cano4palp8qj89ml08e58iqf.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.vculp",
+            "certificate_hash": "f7ca3789a8bfaa80a386ff629edb585f3fd2c711"
+          }
+        },
+        {
+          "client_id": "318428341484-82n20rgpd5blc54otp2rs1u7kq2942kl.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB8P5BjWc9Wv2xwmrOnR-kLTIGFV4UT6ys"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "318428341484-1anj7lou9funptg9e2ee6as278ln2f0v.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

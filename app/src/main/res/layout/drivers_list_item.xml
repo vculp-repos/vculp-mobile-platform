@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/driverListItemCard"
+    xmlns:tools="http://schemas.android.com/tools"
+    style="@style/Widget.Theme.Vculp.ListItem"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    app:cardCornerRadius="10dp">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:padding="8dp">
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/driverProfileImage"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            app:shapeAppearance="@style/ShapeAppearance.Vculp.RoundedImageView"
+            tools:src="@tools:sample/avatars" />
+
+
+        <TextView
+            android:id="@+id/driverEta"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBottom="@+id/driverProfileImage"
+            android:layout_marginStart="16dp"
+            android:layout_marginBottom="0dp"
+            android:layout_toEndOf="@+id/driverProfileImage"
+            android:text="TextView"
+            android:textAlignment="textStart"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/driverName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignTop="@+id/driverProfileImage"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="0dp"
+            android:layout_toEndOf="@+id/driverProfileImage"
+            android:text="TextView"
+            android:textAlignment="textStart"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tvNewQuote"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="true"
+
+            android:text="New Quote"
+            android:textAlignment="textEnd"
+            android:textSize="14sp" />
+
+        <TextView
+            android:id="@+id/tvRidePrice"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBottom="@+id/driverProfileImage"
+            android:layout_alignParentEnd="true"
+            android:text="Rs 200"
+            android:textAlignment="textEnd"
+            android:textSize="16sp" />
+
+        <ImageView
+            android:id="@+id/starIcon"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_below="@+id/driverProfileImage"
+            android:layout_alignParentStart="true"
+            android:layout_marginTop="16dp"
+            android:src="@drawable/baseline_star_24" />
+
+        <TextView
+            android:id="@+id/tvRating"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignTop="@+id/starIcon"
+            android:layout_alignBottom="@+id/starIcon"
+            android:layout_marginStart="8dp"
+            android:layout_toEndOf="@id/starIcon"
+            android:gravity="center"
+            android:text="4.5"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/tvNegotiateBtn"
+            style="@style/Widget.Theme.Vculp.Button.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignTop="@+id/tvAcceptBtn"
+            android:layout_alignParentBottom="false"
+            android:layout_marginTop="0dp"
+            android:layout_marginEnd="16dp"
+            android:layout_toStartOf="@+id/tvAcceptBtn"
+            android:text="Negotiate"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tvAcceptBtn"
+            style="@style/Widget.Theme.Vculp.Button.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/tvRating"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentBottom="false"
+            android:layout_marginTop="8dp"
+            android:text="Accept"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+    </RelativeLayout>
+
+</androidx.cardview.widget.CardView>

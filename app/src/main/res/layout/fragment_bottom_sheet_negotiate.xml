@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="8dp">
+
+    <TextView
+        android:id="@+id/bottomSheetHeader"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="16dp"
+        android:hint="new price"
+        android:text="add the new price" />
+
+    <EditText
+        android:id="@+id/etNewPrice"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/bottomSheetHeader"
+        android:layout_marginTop="16dp"
+        android:ems="10"
+        android:hint="new price"
+        android:inputType="text" />
+
+    <Button
+        android:id="@+id/btnSubmitPrice"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/etNewPrice"
+        android:layout_marginTop="100dp"
+        android:background="@drawable/button_background"
+        android:text="Submit" />
+</RelativeLayout>
