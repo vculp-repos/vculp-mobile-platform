@@ -73,7 +73,7 @@ class LiveRideFragment : Fragment() {
                 it.action = LocationTrackingService.Actions.STOP.toString()
                 requireActivity().stopService(it)
             }
-            findNavController().navigate(R.id.action_liveRideFragment_to_riderFragment)
+            findNavController().navigate(R.id.action_liveRideFragment_to_rideFeedback)
         }
 
     }
