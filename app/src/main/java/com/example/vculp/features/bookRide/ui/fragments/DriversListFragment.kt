@@ -10,6 +10,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -27,6 +28,7 @@ import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 
 class DriversListFragment : Fragment() {
@@ -70,20 +72,26 @@ class DriversListFragment : Fragment() {
 
         val userLocationHelper = UserLocationImpl(RetrofitBuilder.userLocationService)
 
-        val handler = Handler(Looper.getMainLooper())
+
+        binding.cancelRideBtn.setOnClickListener {
+            findNavController().navigate(R.id.action_driversListFragment_to_riderFragment)
+        }
 
 
-
-        GlobalScope.launch(Dispatchers.IO) {
+        lifecycleScope.launch(Dispatchers.IO) {
+            binding.progressBar.visibility = View.VISIBLE
+            binding.recyclerView.visibility = View.INVISIBLE
             driversDataArray = userLocationHelper.getDriversList(riderViewModel.currentLocation.value!!,riderViewModel.dropLocation.value!!)
             Log.i("drivers_list", "onViewCreated: $driversDataArray")
 
 
-            // Inside your background thread (IO thread)
-            handler.post {
-                (driversList.adapter as? DriversListAdapter)?.updateData(driversDataArray)
+            withContext(Dispatchers.Main){
+                if(driversDataArray.isNotEmpty()){
+                    (driversList.adapter as? DriversListAdapter)?.updateData(driversDataArray)
+                    binding.progressBar.visibility = View.GONE
+                    binding.recyclerView.visibility = View.VISIBLE
+                }
             }
-
         }
 
     }

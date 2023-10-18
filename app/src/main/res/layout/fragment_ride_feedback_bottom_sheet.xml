@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="8dp"
+    android:paddingBottom="16dp">
+
+    <RelativeLayout
+        android:id="@+id/relativeLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:layout_editor_absoluteX="8dp">
+
+        <ImageView
+            android:id="@+id/imageView2"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:background="?attr/colorSecondary"
+            app:srcCompat="@drawable/baseline_person_24" />
+
+        <TextView
+            android:id="@+id/tvUserName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignTop="@+id/imageView2"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="8dp"
+            android:layout_toEndOf="@+id/imageView2"
+            android:text="Aryan"
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+            android:textStyle="bold" />
+
+        <RatingBar
+            android:id="@+id/ratingBar"
+            style="@android:style/Widget.Material.RatingBar.Indicator"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/tvUserName"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="8dp"
+            android:layout_toEndOf="@+id/imageView2" />
+
+    </RelativeLayout>
+
+    <TextView
+        android:id="@+id/reviewOne"
+        style="@style/Widget.Theme.Vculp.TextViewLikeEditText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/edit_text_bg"
+        android:minHeight="40dp"
+        android:text="The ride was good."
+        android:textSize="16sp"
+        app:layout_constraintTop_toBottomOf="@+id/relativeLayout"
+        tools:layout_editor_absoluteX="24dp" />
+
+    <TextView
+        android:id="@+id/reviewTwo"
+        style="@style/Widget.Theme.Vculp.TextViewLikeEditText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/edit_text_bg"
+        android:minHeight="40dp"
+        android:text="The ride was okay."
+        android:textSize="16sp"
+        app:layout_constraintTop_toBottomOf="@+id/reviewOne"
+        tools:layout_editor_absoluteX="24dp" />
+
+    <TextView
+        android:id="@+id/reviewOne3"
+        style="@style/Widget.Theme.Vculp.TextViewLikeEditText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/edit_text_bg"
+        android:minHeight="40dp"
+        android:text="I wasn't satisfied with the ride."
+        android:textSize="16sp"
+        app:layout_constraintTop_toBottomOf="@+id/reviewTwo"
+        tools:layout_editor_absoluteX="24dp" />
+
+    <Button
+        android:id="@+id/submitBtn"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="Submit review"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/reviewOne3" />
+</androidx.constraintlayout.widget.ConstraintLayout>

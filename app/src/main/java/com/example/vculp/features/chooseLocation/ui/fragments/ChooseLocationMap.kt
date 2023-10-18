@@ -21,10 +21,12 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.MapStyleOptions
 import com.google.android.gms.maps.model.MarkerOptions
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import okhttp3.Dispatcher
 import java.io.IOException
 
 class ChooseLocationMap : Fragment() {
@@ -36,11 +38,12 @@ class ChooseLocationMap : Fragment() {
 
     private val callback = OnMapReadyCallback { googleMap ->
         mMap = googleMap
+        googleMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(requireContext(),R.raw.style_json))
         val location = userLocationViewModel.currentLocation.value
         if(location != null){
             val locationLatLng = LatLng(location.latitude,location.longitude)
             googleMap.addMarker(MarkerOptions().position(locationLatLng))
-            googleMap.moveCamera(CameraUpdateFactory.newLatLng(locationLatLng))
+            googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(locationLatLng,12f))
         }
     }
 
@@ -63,14 +66,16 @@ class ChooseLocationMap : Fragment() {
 
     private fun updateMap() {
         addFavLocationViewModel.location.observe(viewLifecycleOwner){
-            lifecycleScope.launch {
+            lifecycleScope.launch(Dispatchers.IO) {
                 var location: LatLng?
-                withContext(Dispatchers.IO){
-                    location = getCoords(it,requireContext())
-                }
-                if(location != null) {
-                    val locationLatLng = LatLng(location!!.latitude, location!!.longitude)
-                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(locationLatLng,12f))
+                location = getCoords(it,requireContext())
+                withContext(Dispatchers.Main) {
+                    if (location != null) {
+                        val locationLatLng = LatLng(location.latitude, location.longitude)
+                        mMap.clear()
+                        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(locationLatLng, 12f))
+                        mMap.addMarker(MarkerOptions().position(locationLatLng))
+                    }
                 }
             }
         }

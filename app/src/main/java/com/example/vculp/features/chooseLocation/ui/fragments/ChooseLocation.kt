@@ -48,8 +48,10 @@ class ChooseLocation : Fragment(), OnItemClickListener {
     ): View? {
         // to get the api key
         val applicationContext = requireContext().applicationContext
-        val ai: ApplicationInfo = applicationContext.packageManager.getApplicationInfo(applicationContext.packageName,
-            PackageManager.GET_META_DATA)
+        val ai: ApplicationInfo = applicationContext.packageManager.getApplicationInfo(
+            applicationContext.packageName,
+            PackageManager.GET_META_DATA
+        )
         val value = ai.metaData.get("com.google.android.geo.API_KEY")
         val apiKey = value.toString()
 
@@ -78,21 +80,22 @@ class ChooseLocation : Fragment(), OnItemClickListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.etStartLocation.text = Editable.Factory().newEditable(riderViewModel.currentLocation.value)
-        riderViewModel.dropLocation.observe(viewLifecycleOwner){
+        binding.etStartLocation.text =
+            Editable.Factory().newEditable(riderViewModel.currentLocation.value)
+        riderViewModel.dropLocation.observe(viewLifecycleOwner) {
             binding.etDropLocation.text = Editable.Factory().newEditable(it)
         }
 
-        locationList = arrayListOf("new delhi","almora")
+        locationList = arrayListOf("new delhi", "almora")
 
         val recommendationsList: RecyclerView = binding.locationRecommendationRecyclerView
         recommendationsList.layoutManager = LinearLayoutManager(context)
-        recommendationsList.adapter = LocationRecommendationsAdapter(locationList, this )
+        recommendationsList.adapter = LocationRecommendationsAdapter(locationList, this)
 
 
         placesAutoCompleteList = binding.placesAutoCompleteList
         placesAutoCompleteList.layoutManager = LinearLayoutManager(context)
-        placesAutoCompleteList.adapter = PlacesAutoCompleteListAdapter(listOf(), this)
+        placesAutoCompleteList.adapter = PlacesAutoCompleteListAdapter(listOf(), this ,false)
 
         binding.findRideBtn.setOnClickListener {
             findNavController().navigate(R.id.action_chooseLocation_to_chooseRideType)
@@ -100,23 +103,19 @@ class ChooseLocation : Fragment(), OnItemClickListener {
 
         binding.etDropLocation.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(text: CharSequence?, start: Int, before: Int, count: Int) {}
             override fun afterTextChanged(s: Editable?) {
-                if(s.isNullOrBlank() || s.isEmpty()) updateLocationSuggestionList(listOf())
-            }
-            override fun onTextChanged(text: CharSequence?, start: Int, before: Int, count: Int) {
-                if(binding.placesAutoCompleteList.visibility != View.VISIBLE) {
+                if (binding.placesAutoCompleteList.visibility != View.VISIBLE) {
                     binding.placesAutoCompleteList.visibility = View.VISIBLE
                 }
-                if (binding.etDropLocation.isFocused || count >=2) {
-                    lifecycleScope.launch {
-                        withContext(Dispatchers.IO) {
-                            getPlacesSuggestions(text.toString())
-                        }
-                    }
+                if (binding.etDropLocation.text.isNotEmpty() && binding.etDropLocation.text.length >= 3) {
+                    getPlacesSuggestions(s.toString())
+                }else{
+                    binding.placesAutoCompleteList.visibility = View.GONE
                 }
             }
         })
-        
+
     }
 
     override fun onItemClick(position: Int, item: String) {
@@ -126,44 +125,38 @@ class ChooseLocation : Fragment(), OnItemClickListener {
     }
 
     override fun onSaveBtnClick(position: Int, item: String) {
-        addFavLocationViewModel.location.value=item
+        addFavLocationViewModel.location.value = item
         findNavController().navigate(R.id.action_chooseLocation_to_addFavLocation)
         riderViewModel.setDropLocation(item)
     }
 
     private fun getPlacesSuggestions(query: String) {
-        var favLocationsList: List<String> = listOf()
-
+        var favLocationsList = ArrayList<String>()
         // Create a new token for the autocomplete session. Pass this to FindAutocompletePredictionsRequest,
         // and once again when the user makes a selection (for example when calling fetchPlace()).
         val token = AutocompleteSessionToken.newInstance()
-
-
         // Use the builder to create a FindAutocompletePredictionsRequest.
-        val request =
-            FindAutocompletePredictionsRequest.builder()
-//                .setLocationRestriction(bounds)
-                .setCountries("IN")
-                .setTypesFilter(listOf(PlaceTypes.ADDRESS))
-                .setSessionToken(token)
-                .setQuery(query)
-                .build()
-
+        val request = FindAutocompletePredictionsRequest.builder()
+            .setCountries("IN").setSessionToken(token)
+            .setQuery(query).build()
         val placesClient = Places.createClient(requireContext())
-        placesClient.findAutocompletePredictions(request)
-            .addOnSuccessListener { response: FindAutocompletePredictionsResponse ->
-                favLocationsList =  response.autocompletePredictions.map {
-                    it.getPrimaryText(null).toString()
+        lifecycleScope.launch(Dispatchers.IO) {
+            placesClient.findAutocompletePredictions(request)
+                .addOnSuccessListener { response: FindAutocompletePredictionsResponse ->
+                    favLocationsList.clear()
+                    favLocationsList.addAll(response.autocompletePredictions.map {
+                        it.getFullText(null).toString()
+                    })
+                    updateLocationSuggestionList(favLocationsList)
+                }.addOnFailureListener { exception: Exception? ->
+                    if (exception is ApiException) {
+                        Log.e("location", "Place not found: ${exception.statusCode}")
+                    }
                 }
-                updateLocationSuggestionList(favLocationsList)
-            }.addOnFailureListener { exception: Exception? ->
-                if (exception is ApiException) {
-                    Log.e("location", "Place not found: ${exception.statusCode}")
-                }
-            }
+        }
     }
 
-    private fun updateLocationSuggestionList(newList: List<String>){
+    private fun updateLocationSuggestionList(newList: List<String>) {
         (placesAutoCompleteList.adapter as? PlacesAutoCompleteListAdapter)?.updateData(newList)
     }
 }

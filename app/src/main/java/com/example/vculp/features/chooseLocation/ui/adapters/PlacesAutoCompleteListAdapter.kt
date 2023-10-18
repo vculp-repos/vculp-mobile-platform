@@ -29,18 +29,20 @@ class PlacesAutoCompleteListAdapter(
 
     override fun onBindViewHolder(holder: PlacesAutoCompleteListViewHolder, position: Int) {
         holder.LocationAddress.text = suggestionsList[position]
-        holder.itemView.setOnClickListener {
-            listener.onItemClick(position, suggestionsList[position])
-            onBindViewHolder(holder, position)
+        hideSaveBtn.apply {
+            holder.itemView.setOnClickListener {
+                listener.onItemClick(position, suggestionsList[position])
+                onBindViewHolder(holder, position)
+            }
+            if(this) {
+                holder.SaveLocationBtn.visibility = View.GONE
+            }else {
+                holder.SaveLocationBtn.setOnClickListener {
+                    listener.onSaveBtnClick(position, suggestionsList[position])
+                }
+            }
         }
 
-        holder.SaveLocationBtn.setOnClickListener {
-            listener.onSaveBtnClick(position, suggestionsList[position])
-        }
-
-        if(hideSaveBtn){
-            holder.SaveLocationBtn.visibility = View.GONE
-        }
     }
 
     @SuppressLint("NotifyDataSetChanged")

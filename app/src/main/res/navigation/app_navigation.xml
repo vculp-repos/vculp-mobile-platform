@@ -7,14 +7,12 @@
 
     <fragment
         android:id="@+id/liveRideFragment"
-        android:name="com.example.vculp.features.currentRide.LiveRideFragment"
+        android:name="com.example.vculp.features.currentRide.ui.fragment.LiveRideFragment"
         android:label="fragment_live_ride"
         tools:layout="@layout/fragment_live_ride" >
         <action
-            android:id="@+id/action_liveRideFragment_to_riderFragment"
-            app:destination="@id/riderFragment"
-            app:popUpTo="@id/riderFragment"
-            app:popUpToInclusive="true" />
+            android:id="@+id/action_liveRideFragment_to_rideFeedback"
+            app:destination="@id/rideFeedback" />
     </fragment>
     <fragment
         android:id="@+id/riderFragment"
@@ -38,7 +36,7 @@
     </fragment>
     <fragment
         android:id="@+id/reachRiderFragment"
-        android:name="com.example.vculp.features.currentRide.ReachRiderFragment"
+        android:name="com.example.vculp.features.currentRide.ui.fragment.ReachRiderFragment"
         android:label="ReachRiderFragment" >
         <action
             android:id="@+id/action_reachRiderFragment_to_liveRideFragment"
@@ -51,6 +49,11 @@
         <action
             android:id="@+id/action_driversListFragment_to_reachRiderFragment"
             app:destination="@id/reachRiderFragment" />
+        <action
+            android:id="@+id/action_driversListFragment_to_riderFragment"
+            app:destination="@id/riderFragment"
+            app:popUpTo="@id/riderFragment"
+            app:popUpToInclusive="true" />
     </fragment>
     <fragment
         android:id="@+id/chooseRideType"
@@ -148,6 +151,18 @@
         tools:layout="@layout/fragment_onboarding_screen_container" >
         <action
             android:id="@+id/action_onboardingScreenContainer_to_riderFragment"
-            app:destination="@id/riderFragment" />
+            app:destination="@id/riderFragment"
+            app:popUpTo="@id/riderFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
+    <fragment
+        android:id="@+id/rideFeedback"
+        android:name="com.example.vculp.features.rideFeedback.ui.RideFeedback"
+        android:label="rideFeedback" >
+        <action
+            android:id="@+id/action_rideFeedback_to_riderFragment"
+            app:destination="@id/riderFragment"
+            app:popUpTo="@id/riderFragment"
+            app:popUpToInclusive="true" />
     </fragment>
 </navigation>

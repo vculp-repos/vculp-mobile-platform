@@ -118,7 +118,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:background="@drawable/edit_text_bg"
-                android:backgroundTint="?attr/colorSecondary"
+                android:backgroundTint="?attr/colorSurfaceVariant"
                 android:contentDescription="map"
                 app:circularflow_defaultRadius="10dp" />
         </androidx.cardview.widget.CardView>

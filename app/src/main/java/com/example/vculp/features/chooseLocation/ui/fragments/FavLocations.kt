@@ -26,7 +26,6 @@ import com.example.vculp.shared.ui.viewmodels.FavLocationsViewModel
 import com.example.vculp.shared.ui.viewmodels.FavLocationsViewModelFactory
 import com.example.vculp.features.riderHome.ui.viewmodels.RiderViewModel
 import com.example.vculp.shared.data.AppDatabase
-import com.google.android.material.color.utilities.MaterialDynamicColors.background
 import com.google.android.material.snackbar.Snackbar
 
 class FavLocations : Fragment() {

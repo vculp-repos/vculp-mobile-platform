@@ -2,7 +2,6 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/frameLayout2"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".features.onboarding.ui.fragments.OnboardingScreen01">
@@ -10,19 +9,21 @@
     <ImageView
         android:id="@+id/imageView"
         android:layout_width="0dp"
-        android:layout_height="0dp"
-        app:layout_constraintBottom_toTopOf="@+id/cardView5"
+        android:layout_height="wrap_content"
+        android:src="@drawable/onboarding01"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <androidx.cardview.widget.CardView
         android:id="@+id/cardView5"
-        android:layout_width="411dp"
-        android:layout_height="190dp"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:maxHeight="200dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/imageView">
 
         <RelativeLayout
             android:layout_width="match_parent"
@@ -34,8 +35,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_alignParentTop="true"
-                android:text="TextView"
-                android:textSize="16sp" />
+                android:text="Welcome to Vculp"
+                android:textSize="20sp"
+                android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/textView6"
@@ -49,7 +51,7 @@
                 android:layout_marginTop="16dp"
                 android:layout_marginEnd="0dp"
                 android:layout_marginBottom="16dp"
-                android:text="TextView" />
+                android:text="&quot;In a word, a number of the comprehensive methods reinforces &quot;In a word, a number of the comprehensive methods reinforces &quot;In a word, a number of the comprehensive methods reinforces &quot;In a word, a number of the comprehensive methods reinforces." />
 
             <Button
                 android:id="@+id/button"
@@ -57,7 +59,7 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentBottom="true"
                 android:layout_marginBottom="0dp"
-                android:text="Button" />
+                android:text="Next" />
         </RelativeLayout>
     </androidx.cardview.widget.CardView>
 

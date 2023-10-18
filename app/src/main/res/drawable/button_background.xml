@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
     <item>
-        <ripple android:color="@color/black_800">
+        <ripple android:color="@color/md_theme_light_primary">
             <item>
             <shape>
-                <solid android:color="@color/black" />
-                <corners android:radius="5dp" />
+                <solid android:color="@color/md_theme_light_primary" />
+                <corners android:radius="10dp" />
             </shape>
             </item>
         </ripple>

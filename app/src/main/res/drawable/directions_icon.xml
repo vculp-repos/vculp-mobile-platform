@@ -6,6 +6,6 @@
     >
   <path
       android:pathData="M0,7.5C0,3.358 3.358,0 7.5,0C11.642,0 15,3.358 15,7.5C15,11.128 12.423,14.155 9,14.85V31.15C12.423,31.845 15,34.872 15,38.5C15,42.642 11.642,46 7.5,46C3.358,46 0,42.642 0,38.5C0,34.872 2.577,31.845 6,31.15V14.85C2.577,14.155 0,11.128 0,7.5Z"
-      android:fillColor="?attr/colorOnSurface"
+      android:fillColor="?attr/colorOnSurfaceVariant"
       />
 </vector>

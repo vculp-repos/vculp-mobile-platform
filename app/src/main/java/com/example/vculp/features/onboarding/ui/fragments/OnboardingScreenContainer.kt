@@ -29,8 +29,7 @@ class OnboardingScreenContainer : Fragment() {
 
         val fragmentList = arrayListOf<Fragment>(
             OnboardingScreen01(),
-            OnboardingScreen02(),
-            OnboardingScreen03()
+            OnboardingScreen02()
         )
 
         val adapter = OnboardingScreenContainerAdapter(
