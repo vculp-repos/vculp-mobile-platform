@@ -32,7 +32,7 @@ class ReachRiderFragment: Fragment() {
         binding.cardView.setBackgroundResource(R.drawable.top_card_bg)
 
         lifecycleScope.launch {
-            viewModel.currentLocation.observe(viewLifecycleOwner) {
+            viewModel.startLocation.observe(viewLifecycleOwner) {
                 binding.currentLocation.text = Editable.Factory.getInstance().newEditable(it)
             }
 

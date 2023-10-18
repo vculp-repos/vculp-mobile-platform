@@ -55,10 +55,11 @@
             android:ems="10"
             android:hint="current location"
             android:inputType="text"
+            android:maxLines="1"
             android:minHeight="48dp"
             android:padding="10dp"
             android:singleLine="true"
-            android:text="@={viewModel.currentLocation}"
+            android:text="@={viewModel.startLocation}"
             android:transitionName="etStartHome"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
@@ -80,6 +81,7 @@
 
         <TextView
             android:id="@+id/tvDropLocation"
+            style="@style/Widget.Theme.Vculp.TextViewLikeEditText"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
@@ -89,10 +91,10 @@
             android:ems="10"
             android:gravity="center_vertical"
             android:hint="drop location"
+            android:maxLines="1"
             android:minHeight="48dp"
             android:padding="10dp"
             android:transitionName="etDropHome"
-            style="@style/Widget.Theme.Vculp.TextViewLikeEditText"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/etCurrentLocation" />
@@ -214,6 +216,23 @@
                 android:layout_height="wrap_content"
                 android:text="Track Ride" />
         </LinearLayout>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/currentLocationSuggestionsRv"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="-10dp"
+            android:background="?attr/colorSurfaceVariant"
+            android:paddingStart="8dp"
+            android:paddingTop="8dp"
+            android:paddingEnd="8dp"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="@+id/etCurrentLocation"
+            app:layout_constraintStart_toStartOf="@+id/etCurrentLocation"
+            app:layout_constraintTop_toBottomOf="@+id/etCurrentLocation"
+            tools:itemCount="5"
+            tools:listitem="@layout/location_suggestions_list_item"
+            tools:visibility="visible" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

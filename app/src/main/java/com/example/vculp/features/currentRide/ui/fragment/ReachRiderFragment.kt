@@ -5,9 +5,7 @@ import android.text.Editable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.example.vculp.R
@@ -33,7 +31,7 @@ class ReachRiderFragment: Fragment() {
         binding = FragmentReachRiderBinding.bind(view)
         binding.cardView.setBackgroundResource(R.drawable.top_card_bg)
         lifecycleScope.launch {
-            viewModel.currentLocation.observe(viewLifecycleOwner) {
+            viewModel.startLocation.observe(viewLifecycleOwner) {
                 binding.currentLocation.text = Editable.Factory.getInstance().newEditable(it)
             }
 

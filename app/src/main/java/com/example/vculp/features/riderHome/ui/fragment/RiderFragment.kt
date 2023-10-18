@@ -1,5 +1,7 @@
 package com.example.vculp.features.riderHome.ui.fragment
 
+import android.content.pm.ApplicationInfo
+import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.location.Location
@@ -7,8 +9,10 @@ import android.opengl.Visibility
 import android.os.Build
 import android.os.Bundle
 import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
@@ -16,12 +20,18 @@ import androidx.annotation.RequiresApi
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.vculp.R
 import com.example.vculp.databinding.FragmentRiderBinding
 import com.example.vculp.features.chooseLocation.data.FavLocationsRepository
 import com.example.vculp.features.chooseLocation.data.models.FavLocation
+import com.example.vculp.features.chooseLocation.ui.adapters.OnItemClickListener
+import com.example.vculp.features.chooseLocation.ui.adapters.PlacesAutoCompleteListAdapter
+import com.example.vculp.features.chooseLocation.ui.fragments.ChooseLocation
 import com.example.vculp.features.riderHome.ui.viewmodels.RiderViewModel
 import com.example.vculp.shared.data.AppDatabase
 import com.example.vculp.shared.ui.viewmodels.FavLocationsViewModel
@@ -29,16 +39,23 @@ import com.example.vculp.shared.ui.viewmodels.FavLocationsViewModelFactory
 import com.example.vculp.shared.ui.viewmodels.UserLocationViewModel
 import com.example.vculp.utils.CustomLocationManager
 import com.example.vculp.utils.PermissionsHandler
+import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.MapView
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MapStyleOptions
 import com.google.android.gms.maps.model.MarkerOptions
+import com.google.android.libraries.places.api.Places
+import com.google.android.libraries.places.api.model.AutocompleteSessionToken
+import com.google.android.libraries.places.api.net.FindAutocompletePredictionsRequest
+import com.google.android.libraries.places.api.net.FindAutocompletePredictionsResponse
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlin.Exception
 
 
-class RiderFragment : Fragment() {
+class RiderFragment : Fragment(), OnItemClickListener {
     private lateinit var viewModel: RiderViewModel
     private lateinit var binding: FragmentRiderBinding
     private lateinit var userLocationViewModel: UserLocationViewModel
@@ -46,9 +63,10 @@ class RiderFragment : Fragment() {
     private lateinit var locationManager: CustomLocationManager
     private lateinit var mapView: MapView
     private var permissionsHandler = PermissionsHandler()
+    private var activeCurrentLocationEtCheck: Boolean = false
+    private lateinit var placesAutoCompleteList: RecyclerView
 
     val CurrentRide = false
-
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -91,6 +109,10 @@ class RiderFragment : Fragment() {
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        placesAutoCompleteList = binding.currentLocationSuggestionsRv
+        placesAutoCompleteList.layoutManager = LinearLayoutManager(context)
+        placesAutoCompleteList.adapter = PlacesAutoCompleteListAdapter(listOf(), this ,true)
 
         userLocationViewModel.currentLocation.observe(viewLifecycleOwner) {
             val tempCoords = LatLng(it.latitude, it.longitude)
@@ -140,6 +162,78 @@ class RiderFragment : Fragment() {
             println("current location update btn clicked!!!")
             updateCurrentLocation()
         }
+
+        binding.etCurrentLocation.setOnTouchListener { view, event ->
+            if (event.action == MotionEvent.ACTION_DOWN) {
+                activeCurrentLocationEtCheck = true
+            }
+            false
+        }
+
+        binding.etCurrentLocation.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(text: CharSequence?, start: Int, before: Int, count: Int) {}
+            override fun afterTextChanged(s: Editable?) {
+                if(!activeCurrentLocationEtCheck) return
+                if (binding.currentLocationSuggestionsRv.visibility != View.VISIBLE) {
+                    binding.currentLocationSuggestionsRv.visibility = View.VISIBLE
+                }
+                if (binding.etCurrentLocation.text.isNotEmpty() && binding.etCurrentLocation.text.length >= 2) {
+                    getPlacesSuggestions(s.toString())
+                }else{
+                    binding.currentLocationSuggestionsRv.visibility = View.GONE
+                }
+            }
+        })
+    }
+
+    private fun getPlacesSuggestions(query: String) {
+        val applicationContext = requireContext().applicationContext
+        val ai: ApplicationInfo = applicationContext.packageManager.getApplicationInfo(
+            applicationContext.packageName,
+            PackageManager.GET_META_DATA
+        )
+        val value = ai.metaData.get("com.google.android.geo.API_KEY")
+        val apiKey = value.toString()
+
+        // initializing Places sdk
+        if (!Places.isInitialized()) {
+            Places.initialize(applicationContext, apiKey)
+        }
+
+        var favLocationsList = ArrayList<String>()
+        // Create a new token for the autocomplete session. Pass this to FindAutocompletePredictionsRequest,
+        // and once again when the user makes a selection (for example when calling fetchPlace()).
+        val token = AutocompleteSessionToken.newInstance()
+        // Use the builder to create a FindAutocompletePredictionsRequest.
+        val request = FindAutocompletePredictionsRequest.builder()
+            .setCountries("IN").setSessionToken(token)
+            .setQuery(query).build()
+        val placesClient = Places.createClient(requireContext())
+        lifecycleScope.launch(Dispatchers.IO) {
+            placesClient.findAutocompletePredictions(request)
+                .addOnSuccessListener { response: FindAutocompletePredictionsResponse ->
+                    favLocationsList.clear()
+                    favLocationsList.addAll(response.autocompletePredictions.map {
+                        it.getFullText(null).toString()
+                    })
+                    updateLocationSuggestionList(favLocationsList)
+                }.addOnFailureListener { exception: Exception? ->
+                    if (exception is ApiException) {
+                        Log.e("location", "Place not found: ${exception.statusCode}")
+                    }
+                }
+        }
+    }
+
+    private fun updateLocationSuggestionList(newList: List<String>) {
+        (placesAutoCompleteList.adapter as? PlacesAutoCompleteListAdapter)?.updateData(newList)
+    }
+
+    private fun setLocationFromSuggestions(cl: String){
+        viewModel.setStartLocation(cl)
+        binding.currentLocationSuggestionsRv.visibility = View.GONE
+        activeCurrentLocationEtCheck = false
     }
 
     private fun setUpMap(usersLastKnownLocation: Location?) {
@@ -237,4 +331,10 @@ class RiderFragment : Fragment() {
         super.onLowMemory()
         mapView.onLowMemory()
     }
+
+    override fun onItemClick(position: Int, item: String) {
+        setLocationFromSuggestions(item)
+    }
+
+    override fun onSaveBtnClick(position: Int, item: String) {}
 }

@@ -8,8 +8,10 @@ import android.text.TextWatcher
 import android.transition.TransitionInflater
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
@@ -25,12 +27,10 @@ import com.example.vculp.features.riderHome.ui.viewmodels.RiderViewModel
 import com.google.android.gms.common.api.ApiException
 import com.google.android.libraries.places.api.Places
 import com.google.android.libraries.places.api.model.AutocompleteSessionToken
-import com.google.android.libraries.places.api.model.PlaceTypes
 import com.google.android.libraries.places.api.net.FindAutocompletePredictionsRequest
 import com.google.android.libraries.places.api.net.FindAutocompletePredictionsResponse
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 
 class ChooseLocation : Fragment(), OnItemClickListener {
@@ -40,26 +40,16 @@ class ChooseLocation : Fragment(), OnItemClickListener {
     private lateinit var riderViewModel: RiderViewModel
     private lateinit var placesAutoCompleteList: RecyclerView
     private val addFavLocationViewModel = AddFavLocationViewModel.getInstance()
+    private var activeLocationCheck:ActiveLocationCheck? = null
 
-
+    enum class ActiveLocationCheck {
+        START_LOCATION,
+        DROP_LOCATION
+    }
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // to get the api key
-        val applicationContext = requireContext().applicationContext
-        val ai: ApplicationInfo = applicationContext.packageManager.getApplicationInfo(
-            applicationContext.packageName,
-            PackageManager.GET_META_DATA
-        )
-        val value = ai.metaData.get("com.google.android.geo.API_KEY")
-        val apiKey = value.toString()
-
-        // initializing Places sdk
-        if (!Places.isInitialized()) {
-            Places.initialize(applicationContext, apiKey)
-        }
-
         val enterAnimation = TransitionInflater.from(requireContext()).inflateTransition(
             android.R.transition.explode
         )
@@ -80,8 +70,10 @@ class ChooseLocation : Fragment(), OnItemClickListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.etStartLocation.text =
-            Editable.Factory().newEditable(riderViewModel.currentLocation.value)
+        riderViewModel.startLocation.observe(viewLifecycleOwner) {
+            binding.etStartLocation.text = Editable.Factory().newEditable(it)
+        }
+
         riderViewModel.dropLocation.observe(viewLifecycleOwner) {
             binding.etDropLocation.text = Editable.Factory().newEditable(it)
         }
@@ -98,13 +90,29 @@ class ChooseLocation : Fragment(), OnItemClickListener {
         placesAutoCompleteList.adapter = PlacesAutoCompleteListAdapter(listOf(), this ,false)
 
         binding.findRideBtn.setOnClickListener {
+            if(riderViewModel.startLocation.value.isNullOrEmpty() || riderViewModel.dropLocation.value.isNullOrEmpty()) {
+                Toast.makeText(
+                    context,
+                    "Please choose both start and drop locations!",
+                    Toast.LENGTH_SHORT
+                ).show()
+                return@setOnClickListener
+            }
             findNavController().navigate(R.id.action_chooseLocation_to_chooseRideType)
         }
+
+        binding.etStartLocation.setOnClickListener {
+            activeLocationCheck = ActiveLocationCheck.START_LOCATION
+        }
+
+        checkActiveLocationBtn()
 
         binding.etDropLocation.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(text: CharSequence?, start: Int, before: Int, count: Int) {}
             override fun afterTextChanged(s: Editable?) {
+                if(activeLocationCheck == null) return
+                activeLocationCheck = ActiveLocationCheck.DROP_LOCATION
                 if (binding.placesAutoCompleteList.visibility != View.VISIBLE) {
                     binding.placesAutoCompleteList.visibility = View.VISIBLE
                 }
@@ -116,21 +124,82 @@ class ChooseLocation : Fragment(), OnItemClickListener {
             }
         })
 
+        binding.etStartLocation.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(text: CharSequence?, start: Int, before: Int, count: Int) {}
+            override fun afterTextChanged(s: Editable?) {
+                if(activeLocationCheck == null) return
+                activeLocationCheck = ActiveLocationCheck.START_LOCATION
+                if (binding.placesAutoCompleteList.visibility != View.VISIBLE) {
+                    binding.placesAutoCompleteList.visibility = View.VISIBLE
+                }
+                if (binding.etStartLocation.text.isNotEmpty() && binding.etStartLocation.text.length >= 2) {
+                    getPlacesSuggestions(s.toString())
+                }else{
+                    binding.placesAutoCompleteList.visibility = View.GONE
+                }
+            }
+        })
+
+    }
+
+    private fun checkActiveLocationBtn() {
+        binding.etDropLocation.setOnTouchListener { view, event ->
+            if (event.action == MotionEvent.ACTION_DOWN) {
+                activeLocationCheck = ActiveLocationCheck.DROP_LOCATION
+            }
+            false
+        }
+
+        binding.etStartLocation.setOnTouchListener { view, event ->
+            if (event.action == MotionEvent.ACTION_DOWN) {
+                activeLocationCheck = ActiveLocationCheck.START_LOCATION
+            }
+            false
+        }
     }
 
     override fun onItemClick(position: Int, item: String) {
         println("$item is clicked!!")
-        riderViewModel.setDropLocation(item)
-        binding.placesAutoCompleteList.visibility = View.GONE
+        setLocationFromSuggestions(item)
     }
 
     override fun onSaveBtnClick(position: Int, item: String) {
         addFavLocationViewModel.location.value = item
         findNavController().navigate(R.id.action_chooseLocation_to_addFavLocation)
-        riderViewModel.setDropLocation(item)
+        setLocationFromSuggestions(item)
+    }
+
+    private fun setLocationFromSuggestions(item: String) {
+        when(activeLocationCheck){
+            ActiveLocationCheck.DROP_LOCATION -> {
+                riderViewModel.setDropLocation(item)
+                binding.placesAutoCompleteList.visibility = View.GONE
+                activeLocationCheck = null
+            }
+            ActiveLocationCheck.START_LOCATION -> {
+                riderViewModel.setStartLocation(item)
+                binding.placesAutoCompleteList.visibility = View.GONE
+                activeLocationCheck = null
+            }
+            else -> {return}
+        }
     }
 
     private fun getPlacesSuggestions(query: String) {
+        val applicationContext = requireContext().applicationContext
+        val ai: ApplicationInfo = applicationContext.packageManager.getApplicationInfo(
+            applicationContext.packageName,
+            PackageManager.GET_META_DATA
+        )
+        val value = ai.metaData.get("com.google.android.geo.API_KEY")
+        val apiKey = value.toString()
+
+        // initializing Places sdk
+        if (!Places.isInitialized()) {
+            Places.initialize(applicationContext, apiKey)
+        }
+
         var favLocationsList = ArrayList<String>()
         // Create a new token for the autocomplete session. Pass this to FindAutocompletePredictionsRequest,
         // and once again when the user makes a selection (for example when calling fetchPlace()).

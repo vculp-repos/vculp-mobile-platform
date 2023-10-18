@@ -6,7 +6,6 @@ import android.location.Geocoder
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.bumptech.glide.Glide.init
 import com.example.vculp.shared.data.models.Duration
 import com.google.android.gms.maps.model.LatLng
 import java.io.IOException
@@ -17,19 +16,19 @@ class RiderViewModel : ViewModel() {
         fun getInstance() = viewModel
     }
 
-    val currentLocation = MutableLiveData<String>()
+    val startLocation = MutableLiveData<String>()
     val dropLocation = MutableLiveData<String>()
     val coords = MutableLiveData<Array<LatLng>?>()
     val duration = MutableLiveData<Duration>()
 
     init {
-        currentLocation.value = ""
+        startLocation.value = ""
         dropLocation.value = ""
         duration.value = Duration()
     }
 
     fun setCoords(context: Context){
-            val currentLocationCoords = currentLocation.value?.let { getCoords(it,context) }
+            val currentLocationCoords = startLocation.value?.let { getCoords(it,context) }
             val dropLocationCoords = dropLocation.value?.let { getCoords(it, context ) }
             if(currentLocationCoords != null && dropLocationCoords != null) coords.postValue(arrayOf(currentLocationCoords,dropLocationCoords))
             else{
@@ -74,6 +73,10 @@ class RiderViewModel : ViewModel() {
 
     fun setDropLocation(dl: String){
         dropLocation.value = dl
+    }
+
+    fun setStartLocation(sl: String){
+        startLocation.value = sl
     }
 
     fun setDuration(d: Duration){

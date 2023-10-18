@@ -43,7 +43,7 @@ class ChooseRideType : Fragment() {
         super.onViewCreated(view,savedInstanceState)
         setClickListenerToHorizontalList()
 
-        riderViewModel.currentLocation.observe(viewLifecycleOwner){
+        riderViewModel.startLocation.observe(viewLifecycleOwner){
             binding.startingLocation.text = it
         }
 
