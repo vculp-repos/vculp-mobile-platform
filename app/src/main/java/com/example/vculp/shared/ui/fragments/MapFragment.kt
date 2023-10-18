@@ -13,6 +13,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import com.example.vculp.R
 import com.example.vculp.shared.data.models.MapData
 import com.example.vculp.features.riderHome.ui.viewmodels.RiderViewModel
@@ -32,6 +33,10 @@ import com.google.android.gms.maps.model.Polyline
 import com.google.android.gms.maps.model.PolylineOptions
 import com.google.android.libraries.places.api.Places
 import com.google.gson.Gson
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import okhttp3.Request
 
@@ -48,6 +53,7 @@ class MapFragment : Fragment() {
         mMap = googleMap
         googleMap.setMinZoomPreference(5f)
         googleMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(requireContext(),R.raw.style_json))
+        clearMap()
         riderViewModel.coords.observe(viewLifecycleOwner){
             val coords = it
             if (coords != null) {
@@ -86,10 +92,6 @@ class MapFragment : Fragment() {
         mapFragment?.getMapAsync(callback)
 
         riderViewModel.dropLocation.observe(viewLifecycleOwner){
-            if (this::routeLine.isInitialized) routeLine.remove()
-            if (this::mMap.isInitialized) {
-                mMap.clear()
-            }
             riderViewModel.setCoords(requireContext())
         }
 
@@ -102,11 +104,21 @@ class MapFragment : Fragment() {
     private fun drawRoute(coords: Array<LatLng>){
         val originLocation = MarkerOptions().position(coords[0]).title("current location")
         val destinationLocation = MarkerOptions().position(coords[1]).title("drop location")
+        clearMap()
         mMap.addMarker(originLocation)
         mMap.addMarker(destinationLocation)
         zoomMap(mMap, originLocation, destinationLocation)
         val urll = getDirectionURL(originLocation.position, destinationLocation.position, apiKey)
-        GetDirection(urll).execute()
+        getRoutePath(urll)
+    }
+
+    private fun clearMap(){
+        Log.i("TAG", "clearMap: called")
+        mMap.clear()
+        if(this::routeLine.isInitialized) {
+            routeLine.remove()
+            Log.i("TAG", "clearMap: routeline removed")
+        }
     }
 
     private fun zoomMap(map: GoogleMap,marker1: MarkerOptions, marker2: MarkerOptions){
@@ -157,45 +169,42 @@ class MapFragment : Fragment() {
         return poly
     }
 
-    @SuppressLint("StaticFieldLeak")
-    private inner class GetDirection(val url : String) : AsyncTask<Void, Void, List<List<LatLng>>>(){
-
-        @Deprecated("Deprecated in Java")
-        override fun doInBackground(vararg params: Void?): List<List<LatLng>> {
-
+    private fun getRoutePath(url:String){
+        lifecycleScope.launch(Dispatchers.IO) {
             val client = OkHttpClient()
             val request = Request.Builder().url(url).build()
             val response = client.newCall(request).execute()
             val data = response.body!!.string()
 
             val result =  ArrayList<List<LatLng>>()
+            withContext(Dispatchers.Main){
+                if(this@MapFragment::routeLine.isInitialized) {
+                    routeLine.remove()
+                    Log.i("TAG", "getRoutePath: routeline removed")
+                }
+            }
             try{
                 val respObj = Gson().fromJson(data, MapData::class.java)
-
                 riderViewModel.setDuration(respObj.routes[0].legs[0].duration)
-
                 val path =  ArrayList<LatLng>()
                 for (i in 0 until respObj.routes[0].legs[0].steps.size){
                     path.addAll(decodePolyline(respObj.routes[0].legs[0].steps[i].polyline.points))
                 }
                 result.add(path)
+                val lineoption = PolylineOptions()
+                for (i in result.indices){
+                    lineoption.addAll(result[i])
+                    lineoption.width(14f)
+                    val hsv = floatArrayOf(213.0f, 30.0f, 100.0f)
+                    lineoption.color(Color.HSVToColor(hsv))
+                    lineoption.geodesic(true)
+                }
+                withContext(Dispatchers.Main){
+                    routeLine = mMap.addPolyline(lineoption)
+                }
             }catch (e:Exception){
                 e.printStackTrace()
             }
-            return result
-        }
-
-        @Deprecated("Deprecated in Java")
-        override fun onPostExecute(result: List<List<LatLng>>) {
-            val lineoption = PolylineOptions()
-            for (i in result.indices){
-                lineoption.addAll(result[i])
-                lineoption.width(14f)
-                val hsv = floatArrayOf(213.0f, 30.0f, 100.0f)
-                lineoption.color(Color.HSVToColor(hsv))
-                lineoption.geodesic(true)
-            }
-            routeLine = mMap.addPolyline(lineoption)
         }
     }
 
