@@ -12,9 +12,10 @@ import androidx.navigation.fragment.findNavController
 import com.example.vculp.R
 import com.example.vculp.databinding.FragmentChooseRideTypeBinding
 import com.example.vculp.features.bookRide.ui.viewmodels.ChooseRideTypeViewModel
+import com.example.vculp.features.bookRide.ui.viewmodels.ChooseRideTypeViewModelFactory
 import com.example.vculp.features.bookRide.ui.viewmodels.RideOptions
-import com.example.vculp.features.bookRide.ui.viewmodels.RideData
 import com.example.vculp.features.riderHome.ui.viewmodels.RiderViewModel
+import com.example.vculp.shared.data.models.FareRecommendationItem
 
 class ChooseRideType : Fragment() {
 
@@ -29,8 +30,9 @@ class ChooseRideType : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        chooseRideTypeViewModel = ViewModelProvider(this).get(ChooseRideTypeViewModel::class.java)
         riderViewModel = RiderViewModel.getInstance()
+        val factory = ChooseRideTypeViewModelFactory(riderViewModel)
+        chooseRideTypeViewModel = ViewModelProvider(this,factory)[ChooseRideTypeViewModel::class.java]
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_choose_ride_type, container, false)
         binding.chooseRideTypeViewModel = chooseRideTypeViewModel
         binding.riderViewModel = riderViewModel
@@ -52,6 +54,7 @@ class ChooseRideType : Fragment() {
         }
 
         chooseRideTypeViewModel.setSelectedBtnView(binding.bikeBtn)
+        chooseRideTypeViewModel.setSelectedRide("bike", binding.bikeBtn)
 
         chooseRideTypeViewModel.selectedBtnView.observe(viewLifecycleOwner) {
             if(currentlySelectedBtn != null) {
@@ -62,10 +65,12 @@ class ChooseRideType : Fragment() {
         }
 
         chooseRideTypeViewModel.selectedRide.observe(viewLifecycleOwner){
-            showSelectedRideData(it)
+            if(it!=null) {
+                showSelectedRideData(it)
+            }
         }
 
-        showRideOptions(chooseRideTypeViewModel.dummyRideOptions)
+        showRideOptions(chooseRideTypeViewModel.rideOptions.value)
 
         binding.increaseRideFareBtn.setOnClickListener {
             chooseRideTypeViewModel.updateRideFare(10)
@@ -98,12 +103,12 @@ class ChooseRideType : Fragment() {
         }
     }
 
-    private fun showSelectedRideData(selectedRide: RideData){
+    private fun showSelectedRideData(selectedRide: FareRecommendationItem){
 
-        binding.etSelectedRidePrice.text = Editable.Factory().newEditable(selectedRide.rideFare)
-        binding.tvSelectedRideETA.text = selectedRide.arrivalTime
+        binding.etSelectedRidePrice.text = Editable.Factory().newEditable(selectedRide.value[0].recommendedDistanceFare.toString())
+        binding.tvSelectedRideETA.text = selectedRide.value[0].duration.toString()
 
-        when(selectedRide.rideType) {
+        when(selectedRide.value[0].vehicleTypeId) {
             "auto" -> {
                 binding.selectedRideImageView.setImageResource(R.drawable.auto_icon)
             }
@@ -121,28 +126,29 @@ class ChooseRideType : Fragment() {
         }
     }
 
-    private fun showRideOptions(rideOptions: Array<RideData>){
-        rideOptions.forEach {
-            when(it.rideType) {
+    private fun showRideOptions(rideOptions: ArrayList<FareRecommendationItem>?){
+        rideOptions?.forEach {
+            var option = it.value[0]
+            when(option.vehicleTypeId) {
                 "auto" -> {
-                    binding.tvAutoFare.text = "Rs. ${it.rideFare}"
-                    binding.tvAutoArrivalTime.text = it.arrivalTime
+                    binding.tvAutoFare.text = "Rs. ${option.baseFare}"
+                    binding.tvAutoArrivalTime.text = option.duration.toString()
                 }
                 "bike" -> {
-                    binding.tvBikeFare.text = "Rs. ${it.rideFare}"
-                    binding.tvBikeArrivalTime.text = it.arrivalTime
+                    binding.tvBikeFare.text = "Rs. ${option.baseFare}"
+                    binding.tvBikeArrivalTime.text = option.duration.toString()
                 }
                 "mini" -> {
-                    binding.tvMiniFare.text = "Rs. ${it.rideFare}"
-                    binding.tvMiniArrivalTime.text = it.arrivalTime
+                    binding.tvMiniFare.text = "Rs. ${option.baseFare}"
+                    binding.tvMiniArrivalTime.text = option.duration.toString()
                 }
                 "sedan" -> {
-                    binding.tvSedanFare.text = "Rs. ${it.rideFare}"
-                    binding.tvSedanArrivalTime.text = it.arrivalTime
+                    binding.tvSedanFare.text = "Rs. ${option.baseFare}"
+                    binding.tvSedanArrivalTime.text = option.duration.toString()
                 }
                 "xl" -> {
-                    binding.tvXlFare.text = "Rs. ${it.rideFare}"
-                    binding.tvXlArrivalTime.text = it.arrivalTime
+                    binding.tvXlFare.text = "Rs. ${option.baseFare}"
+                    binding.tvXlArrivalTime.text = option.duration.toString()
                 }
             }
         }

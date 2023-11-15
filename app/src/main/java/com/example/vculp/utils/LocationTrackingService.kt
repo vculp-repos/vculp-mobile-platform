@@ -52,8 +52,8 @@ class LocationTrackingService : Service() {
                 .setSmallIcon(R.drawable.ic_launcher_foreground)
                 .setContentTitle("live tracking ride")
                 .build()
-            val userLocationHelper = UserLocationImpl(RetrofitBuilder.userLocationService)
-            startLocationUpdates(userLocationHelper)
+//            val userLocationHelper = UserLocationImpl(RetrofitBuilder.userLocationService)
+//            startLocationUpdates(userLocationHelper)
             startForeground(1, notification)
         }
     }

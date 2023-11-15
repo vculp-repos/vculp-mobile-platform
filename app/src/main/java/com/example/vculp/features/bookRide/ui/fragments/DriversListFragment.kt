@@ -66,7 +66,7 @@ class DriversListFragment : Fragment() {
             { position:Int, item:DriverApiDataItem -> onNegotiateClick(position,item) },{ position:Int, item:DriverApiDataItem -> onSaveBtnClick(position,item) })
 
 
-        val userLocationHelper = UserLocationImpl(RetrofitBuilder.userLocationService)
+//        val userLocationHelper = UserLocationImpl(RetrofitBuilder.userLocationService)
 
 
         binding.cancelRideBtn.setOnClickListener {
@@ -77,7 +77,7 @@ class DriversListFragment : Fragment() {
         lifecycleScope.launch(Dispatchers.IO) {
             binding.progressBar.visibility = View.VISIBLE
             binding.recyclerView.visibility = View.INVISIBLE
-            driversDataArray = userLocationHelper.getDriversList(riderViewModel.startLocation.value!!,riderViewModel.dropLocation.value!!)
+//            driversDataArray = userLocationHelper.getDriversList(riderViewModel.startLocation.value!!,riderViewModel.dropLocation.value!!)
             Log.i("drivers_list", "onViewCreated: $driversDataArray")
 
 
