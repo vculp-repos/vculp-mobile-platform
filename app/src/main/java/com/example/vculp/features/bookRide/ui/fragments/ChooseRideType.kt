@@ -15,7 +15,7 @@ import com.example.vculp.features.bookRide.ui.viewmodels.ChooseRideTypeViewModel
 import com.example.vculp.features.bookRide.ui.viewmodels.ChooseRideTypeViewModelFactory
 import com.example.vculp.features.bookRide.ui.viewmodels.RideOptions
 import com.example.vculp.features.riderHome.ui.viewmodels.RiderViewModel
-import com.example.vculp.shared.data.models.FareRecommendationItem
+import com.example.vculp.shared.data.models.FareRecommendationData
 
 class ChooseRideType : Fragment() {
 
@@ -103,7 +103,7 @@ class ChooseRideType : Fragment() {
         }
     }
 
-    private fun showSelectedRideData(selectedRide: FareRecommendationItem){
+    private fun showSelectedRideData(selectedRide: FareRecommendationData){
 
         binding.etSelectedRidePrice.text = Editable.Factory().newEditable(selectedRide.value[0].recommendedDistanceFare.toString())
         binding.tvSelectedRideETA.text = selectedRide.value[0].duration.toString()
@@ -126,7 +126,7 @@ class ChooseRideType : Fragment() {
         }
     }
 
-    private fun showRideOptions(rideOptions: ArrayList<FareRecommendationItem>?){
+    private fun showRideOptions(rideOptions: ArrayList<FareRecommendationData>?){
         rideOptions?.forEach {
             var option = it.value[0]
             when(option.vehicleTypeId) {

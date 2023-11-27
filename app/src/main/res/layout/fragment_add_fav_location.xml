@@ -81,7 +81,7 @@
                 android:inputType="text"
                 android:minHeight="48dp"
                 android:padding="10dp"
-                android:text="@={viewModel.selectedLocation.title}"
+                android:text="@={viewModel.selectedLocation.name}"
                 android:textSize="16sp" />
 
             <Space

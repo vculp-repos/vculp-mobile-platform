@@ -8,7 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.vculp.features.riderHome.ui.viewmodels.RiderViewModel
 import com.example.vculp.network.NetworkImpl
 import com.example.vculp.network.RetrofitBuilder
-import com.example.vculp.shared.data.models.FareRecommendationItem
+import com.example.vculp.shared.data.models.FareRecommendationData
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
@@ -23,10 +23,10 @@ data class RideOptions (
 
 class ChooseRideTypeViewModel(private val riderViewModel: RiderViewModel) : ViewModel() {
 
-    val selectedRide = MutableLiveData<FareRecommendationItem>()
+    val selectedRide = MutableLiveData<FareRecommendationData>()
     val riderRideFare = MutableLiveData<String>()
     val selectedBtnView = MutableLiveData<View>()
-    val rideOptions = MutableLiveData<ArrayList<FareRecommendationItem>?>()
+    val rideOptions = MutableLiveData<ArrayList<FareRecommendationData>?>()
 
     val options: ArrayList<String> = arrayListOf("auto","bike","mini","sedan","xl")
 
@@ -82,7 +82,7 @@ class ChooseRideTypeViewModel(private val riderViewModel: RiderViewModel) : View
         vehicleType: String,
         vehicleBodyType: String,
         vehicleNoOfSeater: Int
-    ): FareRecommendationItem? {
+    ): FareRecommendationData? {
         val networkService = NetworkImpl(RetrofitBuilder.networkService)
         try {
 //            return networkService.getFareRecommendation(

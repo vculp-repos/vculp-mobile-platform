@@ -1,11 +1,11 @@
 package com.example.vculp.features.riderHome.ui.fragment
 
+import android.content.Context
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.location.Location
-import android.opengl.Visibility
 import android.os.Build
 import android.os.Bundle
 import android.text.Editable
@@ -28,12 +28,12 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.vculp.R
 import com.example.vculp.databinding.FragmentRiderBinding
 import com.example.vculp.features.chooseLocation.data.FavLocationsRepository
-import com.example.vculp.features.chooseLocation.data.models.FavLocation
 import com.example.vculp.features.chooseLocation.ui.adapters.OnItemClickListener
 import com.example.vculp.features.chooseLocation.ui.adapters.PlacesAutoCompleteListAdapter
-import com.example.vculp.features.chooseLocation.ui.fragments.ChooseLocation
+import com.example.vculp.features.chooseLocation.ui.fragments.AutocompleteLocation
 import com.example.vculp.features.riderHome.ui.viewmodels.RiderViewModel
 import com.example.vculp.shared.data.AppDatabase
+import com.example.vculp.shared.data.models.FavRegionDataItem
 import com.example.vculp.shared.ui.viewmodels.FavLocationsViewModel
 import com.example.vculp.shared.ui.viewmodels.FavLocationsViewModelFactory
 import com.example.vculp.shared.ui.viewmodels.UserLocationViewModel
@@ -93,13 +93,13 @@ class RiderFragment : Fragment(), OnItemClickListener {
         val repository = FavLocationsRepository(dao)
         val factory = FavLocationsViewModelFactory(repository)
         favLocationViewModel = ViewModelProvider(this, factory)[FavLocationsViewModel::class.java]
-
+        favLocationViewModel.getAllLocations()
 
 
         return binding.root
     }
 
-    private fun handleQuickRideBtns(itemName: String, location: FavLocation?) {
+    private fun handleQuickRideBtns(itemName: String, location: FavRegionDataItem?) {
         when (itemName) {
             "home" -> binding.homeBtn.visibility = if(location != null) View.VISIBLE else View.GONE
             "office" -> binding.officeBtn.visibility = if(location != null) View.VISIBLE else View.GONE
@@ -109,6 +109,13 @@ class RiderFragment : Fragment(), OnItemClickListener {
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        val (applicationContext, apiKey) = initPlacesKeys()
+
+        // initializing Places sdk
+        if (!Places.isInitialized()) {
+            Places.initialize(applicationContext, apiKey)
+        }
 
         placesAutoCompleteList = binding.currentLocationSuggestionsRv
         placesAutoCompleteList.layoutManager = LinearLayoutManager(context)
@@ -187,7 +194,7 @@ class RiderFragment : Fragment(), OnItemClickListener {
         })
     }
 
-    private fun getPlacesSuggestions(query: String) {
+    private fun initPlacesKeys(): Pair<Context, String> {
         val applicationContext = requireContext().applicationContext
         val ai: ApplicationInfo = applicationContext.packageManager.getApplicationInfo(
             applicationContext.packageName,
@@ -195,13 +202,11 @@ class RiderFragment : Fragment(), OnItemClickListener {
         )
         val value = ai.metaData.get("com.google.android.geo.API_KEY")
         val apiKey = value.toString()
+        return Pair(applicationContext, apiKey)
+    }
 
-        // initializing Places sdk
-        if (!Places.isInitialized()) {
-            Places.initialize(applicationContext, apiKey)
-        }
-
-        var favLocationsList = ArrayList<String>()
+    private fun getPlacesSuggestions(query: String) {
+        var favLocationsList = ArrayList<AutocompleteLocation>()
         // Create a new token for the autocomplete session. Pass this to FindAutocompletePredictionsRequest,
         // and once again when the user makes a selection (for example when calling fetchPlace()).
         val token = AutocompleteSessionToken.newInstance()
@@ -215,7 +220,7 @@ class RiderFragment : Fragment(), OnItemClickListener {
                 .addOnSuccessListener { response: FindAutocompletePredictionsResponse ->
                     favLocationsList.clear()
                     favLocationsList.addAll(response.autocompletePredictions.map {
-                        it.getFullText(null).toString()
+                        AutocompleteLocation(it.getFullText(null).toString(),it.placeId)
                     })
                     updateLocationSuggestionList(favLocationsList)
                 }.addOnFailureListener { exception: Exception? ->
@@ -226,12 +231,12 @@ class RiderFragment : Fragment(), OnItemClickListener {
         }
     }
 
-    private fun updateLocationSuggestionList(newList: List<String>) {
+    private fun updateLocationSuggestionList(newList: List<AutocompleteLocation>) {
         (placesAutoCompleteList.adapter as? PlacesAutoCompleteListAdapter)?.updateData(newList)
     }
 
-    private fun setLocationFromSuggestions(cl: String){
-        viewModel.setStartLocation(cl)
+    private fun setLocationFromSuggestions(cl: AutocompleteLocation){
+        viewModel.setStartLocation(cl.address)
         binding.currentLocationSuggestionsRv.visibility = View.GONE
         activeCurrentLocationEtCheck = false
     }
@@ -332,9 +337,9 @@ class RiderFragment : Fragment(), OnItemClickListener {
         mapView.onLowMemory()
     }
 
-    override fun onItemClick(position: Int, item: String) {
+    override fun onItemClick(position: Int, item: AutocompleteLocation) {
         setLocationFromSuggestions(item)
     }
 
-    override fun onSaveBtnClick(position: Int, item: String) {}
+    override fun onSaveBtnClick(position: Int, item: AutocompleteLocation) {}
 }

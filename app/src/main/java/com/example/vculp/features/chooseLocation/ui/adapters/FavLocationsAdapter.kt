@@ -8,11 +8,11 @@ import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.example.vculp.R
 import com.example.vculp.databinding.FavLocationsListItemBinding
-import com.example.vculp.features.chooseLocation.data.models.FavLocation
+import com.example.vculp.shared.data.models.FavRegionDataItem
 
-class FavLocationsListAdapter( private val listener: (FavLocation)->Unit): RecyclerView.Adapter<FavLocationsListViewHolder>() {
+class FavLocationsListAdapter( private val onClickListener: (FavRegionDataItem)->Unit, private val onLongPressListener: (FavRegionDataItem)->Unit): RecyclerView.Adapter<FavLocationsListViewHolder>() {
 
-    private val locationsList= ArrayList<FavLocation>()
+    private val locationsList= ArrayList<FavRegionDataItem>()
     override fun onCreateViewHolder(
         parent: ViewGroup,
         viewType: Int
@@ -23,31 +23,30 @@ class FavLocationsListAdapter( private val listener: (FavLocation)->Unit): Recyc
     }
 
     override fun onBindViewHolder(holder: FavLocationsListViewHolder, position: Int) {
-        holder.bind(locationsList[position],listener)
+        holder.bind(locationsList[position],onClickListener, onLongPressListener)
     }
 
     override fun getItemCount(): Int {
         return locationsList.size
     }
 
-    fun removeListItem(newListItems: List<FavLocation>){
-        locationsList.clear()
-        locationsList.addAll(newListItems)
-    }
-
     @SuppressLint("NotifyDataSetChanged")
-    fun updateListItems(newListItems : List<FavLocation>){
+    fun updateListItems(newListItems : List<FavRegionDataItem>){
         locationsList.clear()
         locationsList.addAll(newListItems)
     }
 }
 
 class FavLocationsListViewHolder(val binding: FavLocationsListItemBinding) : RecyclerView.ViewHolder(binding.root) {
-    fun bind(location: FavLocation, clickListener: (FavLocation)->Unit){
-        binding.tvFavLocationAddress.text = location.location
-        binding.tvFavLocationTitle.text = location.title
+    fun bind(location: FavRegionDataItem, clickListener: (FavRegionDataItem)->Unit, longPressListener: (FavRegionDataItem)-> Unit){
+        binding.tvFavLocationAddress.text = location.name
+        binding.tvFavLocationTitle.text = location.areaName
         binding.favLocationListItem.setOnClickListener {
             clickListener(location)
+        }
+        binding.favLocationListItem.setOnLongClickListener {
+            longPressListener(location)
+            return@setOnLongClickListener false
         }
     }
 }

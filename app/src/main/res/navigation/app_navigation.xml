@@ -131,6 +131,9 @@
         <action
             android:id="@+id/action_favLocations_to_chooseLocation"
             app:destination="@id/chooseLocation" />
+        <action
+            android:id="@+id/action_favLocations_to_addFavLocation"
+            app:destination="@id/addFavLocation" />
     </fragment>
     <fragment
         android:id="@+id/addFavLocation"
@@ -139,10 +142,16 @@
         tools:layout="@layout/fragment_add_fav_location" >
         <action
             android:id="@+id/action_addFavLocation_to_chooseLocation"
-            app:destination="@id/chooseLocation" />
+            app:destination="@id/chooseLocation"
+            app:popUpTo="@id/chooseLocation" />
         <action
             android:id="@+id/action_addFavLocation_to_riderFragment"
             app:destination="@id/riderFragment" />
+        <action
+            android:id="@+id/action_addFavLocation_to_favLocations"
+            app:destination="@id/favLocations"
+            app:popUpTo="@id/favLocations"
+            app:popUpToInclusive="true" />
     </fragment>
     <fragment
         android:id="@+id/onboardingScreenContainer"

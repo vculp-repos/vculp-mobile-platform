@@ -8,9 +8,10 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.vculp.R
+import com.example.vculp.features.chooseLocation.ui.fragments.AutocompleteLocation
 
 class PlacesAutoCompleteListAdapter(
-    private var suggestionsList: List<String>,
+    private var suggestionsList: List<AutocompleteLocation>,
     private val listener: OnItemClickListener,
     private val hideSaveBtn: Boolean = false
 ): RecyclerView.Adapter<PlacesAutoCompleteListViewHolder>() {
@@ -28,7 +29,7 @@ class PlacesAutoCompleteListAdapter(
     }
 
     override fun onBindViewHolder(holder: PlacesAutoCompleteListViewHolder, position: Int) {
-        holder.LocationAddress.text = suggestionsList[position]
+        holder.LocationAddress.text = suggestionsList[position].address
         hideSaveBtn.apply {
             holder.itemView.setOnClickListener {
                 listener.onItemClick(position, suggestionsList[position])
@@ -46,7 +47,7 @@ class PlacesAutoCompleteListAdapter(
     }
 
     @SuppressLint("NotifyDataSetChanged")
-    fun updateData(newList: List<String>) {
+    fun updateData(newList: List<AutocompleteLocation>) {
         suggestionsList = newList
         notifyDataSetChanged()
     }

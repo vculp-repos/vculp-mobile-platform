@@ -3,7 +3,7 @@ package com.example.vculp.shared.data.models
 
 import com.google.gson.annotations.SerializedName
 
-data class Value(
+data class FareRecommendationDataItem(
     @SerializedName("actualDistanceAfterFreeKms")
     val actualDistanceAfterFreeKms: Int,
     @SerializedName("baseFare")

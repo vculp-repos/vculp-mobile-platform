@@ -4,11 +4,14 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.room.TypeConverters
 import com.example.vculp.features.chooseLocation.data.FavLocationsDao
 import com.example.vculp.features.chooseLocation.data.models.FavLocation
-import java.lang.NullPointerException
+import com.example.vculp.shared.data.converter.LinkTypeConverter
+import com.example.vculp.shared.data.models.FavRegionDataItem
 
-@Database(entities = [FavLocation::class], version = 1)
+@Database(entities = [FavRegionDataItem::class], version = 3)
+@TypeConverters(LinkTypeConverter::class)
 abstract class AppDatabase: RoomDatabase() {
     abstract val favLocationsDao: FavLocationsDao
 

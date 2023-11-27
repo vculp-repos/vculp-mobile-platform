@@ -7,17 +7,16 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.vculp.R
-
-
+import com.example.vculp.features.chooseLocation.ui.fragments.AutocompleteLocation
 
 
 interface OnItemClickListener {
-    fun onItemClick(position: Int, item: String )
-    fun onSaveBtnClick(position: Int, item: String)
+    fun onItemClick(position: Int, item: AutocompleteLocation )
+    fun onSaveBtnClick(position: Int, item: AutocompleteLocation)
 }
 
 
-class LocationRecommendationsAdapter(private var locationsList: ArrayList<String>, private val listener: OnItemClickListener): RecyclerView.Adapter<LocationRecommendationsListViewHolder>() {
+class LocationRecommendationsAdapter(private var locationsList: ArrayList<AutocompleteLocation>, private val listener: OnItemClickListener): RecyclerView.Adapter<LocationRecommendationsListViewHolder>() {
     override fun onCreateViewHolder(
         parent: ViewGroup,
         viewType: Int
@@ -32,7 +31,7 @@ class LocationRecommendationsAdapter(private var locationsList: ArrayList<String
     }
 
     override fun onBindViewHolder(holder: LocationRecommendationsListViewHolder, position: Int) {
-        holder.LocationAddress.text = locationsList[position]
+        holder.LocationAddress.text = locationsList[position].address
         holder.itemView.setOnClickListener {
             listener.onItemClick(position, locationsList[position])
             onBindViewHolder(holder, position)
